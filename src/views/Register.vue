@@ -10,7 +10,7 @@
        </p>
        <form @submit.prevent="onSubmit">
          <fieldset class="form-group">
-           <input type="text" name="name"
+           <input type="text" name="username"
                   class="form-control form-control-lg"
                   placeholder="никнейм">
          </fieldset>
@@ -44,7 +44,14 @@
     methods: {
       onSubmit() {
         console.log('register');
-        this.$store.dispatch('register');
+        this.$store.dispatch('register', {
+          username: 'fsgsgge',
+          email: 'fgsegegsa@mail.ru',
+          password: 'gsrhgssh'
+        })
+        .then(user => {
+          console.log('success', user);
+        });
       }
     }
   }
