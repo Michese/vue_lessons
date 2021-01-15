@@ -1,35 +1,47 @@
 import authApi from '@/api/auth'
+import {setLocalStorage} from "@/helper/localStorage";
 
 const state = {
-    isSubmitting: false
+    isSubmitting: false,
+    currentUser: null,
+    validationErrors: null,
+    isLoggedIn: null
 }
 
+export const registerTypes = {
+    registerStart: '[auth] registerStart',
+    registerSuccess: '[auth] registerSuccess',
+    registerFailed: '[auth] registerFailed'
+}
 const mutations = {
-    registerStart(state) {
+    [registerTypes.registerStart](state) {
         state.isSubmitting = true;
+        state.validationErrors = null;
     },
-    registerSuccess(state) {
+    [registerTypes.registerSuccess](state, payload) {
         state.isSubmitting = false;
+        state.isLoggedIn = true;
+        state.currentUser = payload;
     },
-    registerFailed(state) {
+    [registerTypes.registerFailed](state, payload) {
         state.isSubmitting = false;
+        state.isLoggedIn = false;
+        state.validationErrors = payload;
     }
 }
 
 const actions = {
     register(context, credentials) {
-        return new Promise(resolve => {
-            context.commit('registerStart');
+        return new Promise(() => {
+            context.commit(registerTypes.registerStart);
             authApi
                 .register(credentials)
                 .then(response => {
-                    console.log('response', response.data.user);
-                    context.commit('registerSuccess',response.data.user);
-                    resolve(response.data.user);
+                    context.commit(registerTypes.registerSuccess,response.data.user);
+                    setLocalStorage('accessToken', response.data.user.token);
                 })
                 .catch(reject => {
-                    console.log('reject', reject.response.data.errors);
-                    context.commit('registerFailed', reject.response.data.errors);
+                    context.commit(registerTypes.registerFailed, reject.response.data.errors);
                 })
 
         })
